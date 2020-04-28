@@ -319,7 +319,7 @@ class EasyImage extends Component
         if (($file = $this->detectPath($file)) === false) {
             return false;
         }
-        if ($this->checkFileIsImage($file) || $this->checkFileSize($file)) {
+        if (!$this->checkFileIsImage($file) || !$this->checkFileSize($file)) {
             return false;
         }
         $image = Image::factory($file, $this->driver);
@@ -329,15 +329,15 @@ class EasyImage extends Component
         unset($image);
 
         // Same for high-resolution image
-        if ($this->retinaSupport && $result) {
-            if ($this->getImage()->width * 2 <= $originWidth && $this->getImage()->height * 2 <= $originHeight) {
-                $retinaFile = $cachePath . DIRECTORY_SEPARATOR . $hash . '@2x.' . $cacheFileExt;
-                if (isset($params['resize']['width']) && isset($params['resize']['height'])) {
-                    $params['resize']['width'] = $this->getImage()->width * 2;
-                    $params['resize']['height'] = $this->getImage()->height * 2;
-                }
-                $this->_doThumbOf($file, $retinaFile, $params);
+        if ($this->retinaSupport && $result
+            && $this->getImage()->width * 2 <= $originWidth && $this->getImage()->height * 2 <= $originHeight
+        ) {
+            $retinaFile = $cachePath . DIRECTORY_SEPARATOR . $hash . '@2x.' . $cacheFileExt;
+            if (isset($params['resize']['width']) && isset($params['resize']['height'])) {
+                $params['resize']['width'] = $this->getImage()->width * 2;
+                $params['resize']['height'] = $this->getImage()->height * 2;
             }
+            $this->_doThumbOf($file, $retinaFile, $params);
         }
 
         return $webCacheFile;
